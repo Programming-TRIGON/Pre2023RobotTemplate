@@ -9,11 +9,11 @@ public class Conversions {
     public static final int FALCON_TICKS_PER_REVOLUTIONS = 2048;
 
     public static double degreesToMagTicks(double degrees) {
-        return degreesToRevolutions(degrees) * DEGREES_PER_REVOLUTIONS;
+        return degreesToRevolutions(degrees) * MAG_TICKS_PER_REVOLUTION;
     }
 
     public static double degreesToRevolutions(double degrees) {
-        return degrees / MAG_TICKS_PER_REVOLUTION;
+        return degrees / DEGREES_PER_REVOLUTIONS;
     }
 
     public static double falconTicksPer100MsToRpm(double ticks) {
