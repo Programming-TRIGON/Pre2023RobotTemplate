@@ -129,5 +129,9 @@ public class SwerveModule implements Sendable {
         builder.addDoubleProperty("targetVelocity", () -> targetState.speedMetersPerSecond, this::setTargetVelocity);
         builder.addDoubleProperty("rawAngleTicks", angleMotor::getSelectedSensorPosition, null);
     }
+
+    public void zeroDriveEncoder() {
+        driveMotor.setSelectedSensorPosition(0);
+    }
 }
 

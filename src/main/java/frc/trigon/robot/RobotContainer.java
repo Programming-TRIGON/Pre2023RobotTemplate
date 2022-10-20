@@ -1,5 +1,7 @@
 package frc.trigon.robot;
 
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.trigon.robot.components.XboxController;
 import frc.trigon.robot.subsystems.swerve.OpenLoopFieldRelativeSupplierDrive;
 import frc.trigon.robot.subsystems.swerve.Swerve;
@@ -14,6 +16,13 @@ public class RobotContainer {
         initCommands();
         bindDefaultCommands();
         bindControllerCommands();
+        postToDashboard();
+
+        LiveWindow.disableAllTelemetry();
+    }
+
+    private void postToDashboard() {
+        SmartDashboard.putData(Swerve.getInstance());
     }
 
     private void initCommands() {
@@ -34,7 +43,7 @@ public class RobotContainer {
     }
 
     private void bindControllerCommands(){
-        controller.getYBtn().whenPressed(Swerve.getInstance()::zeroHeading);
+        controller.getYBtn().whenPressed(Swerve.getInstance()::resetPose);
         controller.getRightBumperBtn().whenPressed(slowFieldRelativeXboxDrive).whenReleased(slowFieldRelativeXboxDrive::cancel);
     }
 

@@ -1,15 +1,29 @@
 package frc.trigon.robot.subsystems.swerve;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Swerve extends SubsystemBase {
-    private final static Swerve INSTANCE = new Swerve();
+    private static final Swerve INSTANCE = new Swerve();
+    private final SwerveDrivePoseEstimator poseEstimator =
+            new SwerveDrivePoseEstimator(
+                    new Rotation2d(),
+                    new Pose2d(),
+                    SwerveConstants.KINEMATICS,
+                    VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(5)),
+                    VecBuilder.fill(Units.degreesToRadians(0.01)),
+                    VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(30))
+            );
+
 
     private Swerve() {
         zeroHeading();
@@ -92,6 +106,17 @@ public class Swerve extends SubsystemBase {
                         Math.abs(chassisSpeeds.omegaRadiansPerSecond) < SwerveConstants.DEAD_BAND_DRIVE_DEADBAND_MPS;
     }
 
+    @Override
+    public void periodic() {
+        poseEstimator.update(
+                getHeading(),
+                SwerveConstants.SWERVE_MODULES[0].getCurrentState(),
+                SwerveConstants.SWERVE_MODULES[1].getCurrentState(),
+                SwerveConstants.SWERVE_MODULES[2].getCurrentState(),
+                SwerveConstants.SWERVE_MODULES[3].getCurrentState()
+        );
+    }
+
     private void putOnDashboard() {
         for(int i = 0; i < SwerveConstants.SWERVE_MODULES.length; i++) {
             SmartDashboard.putData(
@@ -105,6 +130,15 @@ public class Swerve extends SubsystemBase {
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
         builder.addDoubleProperty("Heading", () -> (int) getHeading().getDegrees(), this::setHeading);
+        builder.addDoubleProperty("x", () -> poseEstimator.getEstimatedPosition().getTranslation().getX(), null);
+        builder.addDoubleProperty("y", () -> poseEstimator.getEstimatedPosition().getTranslation().getY(), null);
+    }
+
+    public void resetPose() {
+        zeroHeading();
+        for(SwerveModule module : SwerveConstants.SWERVE_MODULES)
+            module.zeroDriveEncoder();
+        poseEstimator.resetPosition(new Pose2d(), getHeading());
     }
 }
 

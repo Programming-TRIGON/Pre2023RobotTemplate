@@ -1,5 +1,6 @@
 package frc.trigon.robot.subsystems.swerve;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -10,6 +11,7 @@ public class SwerveModuleConstants {
     public static final double DRIVE_GEAR_RATIO = 8.14;
     private static final double VOLTAGE_COMP_SATURATION = 12;
 
+    private static final NeutralMode DRIVE_MOTOR_NEUTRAL_MODE = NeutralMode.Brake;
     static final double SIDE_LENGTH_M = 0.5;
     static final double DISTANCE_FROM_CENTER_OF_BASE = SIDE_LENGTH_M / 2;
 
@@ -130,8 +132,13 @@ public class SwerveModuleConstants {
 
         FRONT_LEFT_DRIVE_MOTOR.configOpenloopRamp(SwerveConstants.DRIVE_RAMP_RATE);
         FRONT_RIGHT_DRIVE_MOTOR.configOpenloopRamp(SwerveConstants.DRIVE_RAMP_RATE);
-        FRONT_RIGHT_DRIVE_MOTOR.configOpenloopRamp(SwerveConstants.DRIVE_RAMP_RATE);
+        REAR_LEFT_DRIVE_MOTOR.configOpenloopRamp(SwerveConstants.DRIVE_RAMP_RATE);
         REAR_RIGHT_DRIVE_MOTOR.configOpenloopRamp(SwerveConstants.DRIVE_RAMP_RATE);
+
+        FRONT_LEFT_DRIVE_MOTOR.setNeutralMode(DRIVE_MOTOR_NEUTRAL_MODE);
+        FRONT_RIGHT_DRIVE_MOTOR.setNeutralMode(DRIVE_MOTOR_NEUTRAL_MODE);
+        REAR_LEFT_DRIVE_MOTOR.setNeutralMode(DRIVE_MOTOR_NEUTRAL_MODE);
+        REAR_RIGHT_DRIVE_MOTOR.setNeutralMode(DRIVE_MOTOR_NEUTRAL_MODE);
 
         FRONT_LEFT_DRIVE_MOTOR.configVoltageCompSaturation(VOLTAGE_COMP_SATURATION);
         FRONT_LEFT_ANGLE_MOTOR.configVoltageCompSaturation(VOLTAGE_COMP_SATURATION);
