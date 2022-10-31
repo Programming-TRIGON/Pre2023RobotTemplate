@@ -79,8 +79,6 @@ public class SwerveModule implements Sendable {
 
     public void setTargetAngle(double targetAngle) {
         double targetAnglePosition = Conversions.degreesToMagTicks(targetAngle);
-        if(angleMotor.getDeviceID() == 14)
-            System.out.println(targetAnglePosition);
         angleMotor.set(ControlMode.Position, targetAnglePosition + encoderOffset);
     }
 

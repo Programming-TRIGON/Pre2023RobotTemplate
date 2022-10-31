@@ -1,5 +1,6 @@
 package frc.trigon.robot.subsystems.swerve;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -7,6 +8,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -20,8 +23,8 @@ public class Swerve extends SubsystemBase {
                     new Pose2d(),
                     SwerveConstants.KINEMATICS,
                     VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(5)),
-                    VecBuilder.fill(Units.degreesToRadians(0.01)),
-                    VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(30))
+                    VecBuilder.fill(Units.degreesToRadians(0.1)),
+                    SwerveConstants.VISION_STD_DEVS
             );
 
 
@@ -92,11 +95,14 @@ public class Swerve extends SubsystemBase {
     }
 
     public Rotation2d getHeading() {
+        return getPose().getRotation();
+    }
+    private Rotation2d getGyroHeading() {
         return Rotation2d.fromDegrees(SwerveConstants.gyro.getYaw());
     }
 
     public void setHeading(double yaw) {
-        SwerveConstants.gyro.setYaw(yaw);
+        poseEstimator.resetPosition(getPose(), getGyroHeading());
     }
 
     private boolean isStill(ChassisSpeeds chassisSpeeds) {
@@ -109,12 +115,21 @@ public class Swerve extends SubsystemBase {
     @Override
     public void periodic() {
         poseEstimator.update(
-                getHeading(),
+                getGyroHeading(),
                 SwerveConstants.SWERVE_MODULES[0].getCurrentState(),
                 SwerveConstants.SWERVE_MODULES[1].getCurrentState(),
                 SwerveConstants.SWERVE_MODULES[2].getCurrentState(),
                 SwerveConstants.SWERVE_MODULES[3].getCurrentState()
         );
+    }
+
+    public void addVisionMeasurement(Pose2d pose, double timestamp) {
+        poseEstimator.addVisionMeasurement(pose, timestamp);
+    }
+
+    public void addVisionMeasurement(Pose2d pose, double timestamp, Matrix<N3, N1> measurementStdDevs) {
+        poseEstimator.addVisionMeasurement(pose, timestamp, measurementStdDevs);
+        poseEstimator.setVisionMeasurementStdDevs(SwerveConstants.VISION_STD_DEVS);
     }
 
     private void putOnDashboard() {
@@ -129,16 +144,19 @@ public class Swerve extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
-        builder.addDoubleProperty("Heading", () -> (int) getHeading().getDegrees(), this::setHeading);
-        builder.addDoubleProperty("x", () -> poseEstimator.getEstimatedPosition().getTranslation().getX(), null);
-        builder.addDoubleProperty("y", () -> poseEstimator.getEstimatedPosition().getTranslation().getY(), null);
+        builder.addDoubleProperty("Heading", () -> getHeading().getDegrees(), this::setHeading);
+        builder.addDoubleProperty("x", () -> getPose().getX(), null);
+        builder.addDoubleProperty("y", () -> getPose().getY(), null);
     }
 
     public void resetPose() {
-        zeroHeading();
         for(SwerveModule module : SwerveConstants.SWERVE_MODULES)
             module.zeroDriveEncoder();
-        poseEstimator.resetPosition(new Pose2d(), getHeading());
+        poseEstimator.resetPosition(new Pose2d(), getGyroHeading());
+    }
+
+    public Pose2d getPose() {
+        return poseEstimator.getEstimatedPosition();
     }
 }
 

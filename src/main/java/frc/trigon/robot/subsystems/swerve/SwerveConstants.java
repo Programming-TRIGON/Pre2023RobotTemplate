@@ -1,15 +1,20 @@
 package frc.trigon.robot.subsystems.swerve;
 
 import com.ctre.phoenix.sensors.Pigeon2;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 
 public class SwerveConstants {
     public static final double MAX_SPEED_METERS_PER_SECOND = 4.25;
     public static final double MAX_ROTATIONAL_SPEED_RADIANS_PER_SECOND = 12.03;
 
     static final double DRIVE_RAMP_RATE = 0.6;
-    static final double DEAD_BAND_DRIVE_DEADBAND_MPS = 0.1;
+    static final double DEAD_BAND_DRIVE_DEADBAND_MPS = 0.05;
     private static final int PIGEON_ID = 25;
     public static final Pigeon2 gyro = new Pigeon2(PIGEON_ID);
 
@@ -28,4 +33,5 @@ public class SwerveConstants {
     };
 
     static SwerveDriveKinematics KINEMATICS = new SwerveDriveKinematics(LOCATIONS);
+    static Matrix<N3, N1> VISION_STD_DEVS = VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(1));
 }

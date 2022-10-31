@@ -11,6 +11,10 @@ targetCompatibility = javaVersion
 
 def ROBOT_MAIN_CLASS = "frc.trigon.robot.Main"
 
+repositories {
+    mavenCentral()
+}
+
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
 deploy {
